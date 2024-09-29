@@ -1,12 +1,10 @@
 
 package org.example;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -17,8 +15,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  *
  * @author kadir
  */
-public class Main {
-   private static String filePath = "C:\\Users\\marzi\\Desktop\\java\\sample2.xlsx";
+public class MainOne {
+   private static String filePath = "C:\\Users\\marzi\\Desktop\\java\\Projectfiles\\Lisfiles_xlsx\\7018876_DM2009_Creatinine(Lab)_2010_Q2_LIS.xlsx";
     static ArrayList<String> columnNames = new ArrayList<String>();
     static ArrayList<String> columnType = new ArrayList<String>();
     private static File file;
@@ -28,6 +26,8 @@ public class Main {
     private static Iterator<Row> itr;
     private static int rowIndex;
     private static String tableStatement = "" ;
+    private static FileWriter fileWriter;
+    private static BufferedWriter outputBufferWriter;
 
 
     /**
@@ -37,7 +37,6 @@ public class Main {
         processFile(filePath);
         System.out.println(columnNames);
         System.out.println(columnType);
-
         try {
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/patient_data", "root", "0112358");
             creatTable(connection);
@@ -48,30 +47,15 @@ public class Main {
     }
 
     private static void insertData(Connection connection) {
+
         try {
-//            Row ro = sheet.getRow(2644);
-//
-//            Iterator<Cell> cellItr = ro.cellIterator();
-//            cellItr.forEachRemaining(cell -> {
-//                String cellType = cell.getCellType().toString();
-//                switch(cellType){
-//                    case "NUMERIC":
-//                       System.out.println("NUMERIC-"+cell.getNumericCellValue());
-//                        break;
-//                    case "STRING":
-//                       System.out.println("String-"+cell.getStringCellValue());
-//                        break;
-//                    case "BLANK":
-//                       System.out.println("Blank- "+cell.getStringCellValue());
-//                        break;
-//                    default:
-//                        System.out.println("No type found");
-//                }
-//            });
-
-
-
-            for(int i = 82; i<64489; i++){
+            fileWriter = new FileWriter(filePath.replace(".xlsx",".txt").replace("Lisfiles_xlsx","MissingData"));
+            outputBufferWriter = new BufferedWriter(fileWriter);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+        try {
+            for(int i = 83 - 1 ; i<=  63490 - 1; i++){
                Row row = sheet.getRow(i);
                 Iterator<Cell> cellIterator = row.cellIterator();   //iterating over each column
                 String statement = "";
@@ -83,22 +67,19 @@ public class Main {
                         switch(cellType){
                             case "NUMERIC":
                                 statement += cell.getNumericCellValue()+",";
-                                //System.out.println(cell.getNumericCellValue());
                                 break;
                             case "STRING":
                                 statement += "'"+cell.getStringCellValue()+"'"+",";
-                                // System.out.println(cell.getStringCellValue());
                                 break;
                             case "BLANK":
                                 statement += "'"+" "+"',";
-                                // System.out.println(cell.getStringCellValue());
                                 break;
                             default:
                                 System.out.println("No type found");
                         }
                     }
                     catch (Exception exception){
-                        System.out.println(exception.getMessage() + "Missing row - "  + i  );
+                       System.out.println(exception.getMessage());
                     }
                 }
                 statement = "insert into lis_data"+" "+"values "+ "(" + statement.trim().substring(0, statement.length() - 1) +")";
@@ -106,87 +87,21 @@ public class Main {
                 try {
                     connection.prepareStatement(statement).execute();
                 } catch (SQLException e) {
-                    System.out.println(e.getMessage());
+                    //System.out.println(e.getMessage());
+                    writeToFile("Missing row: " + ( 1 + i));
                 }
-
             }
-
-
-
-
-
-
-
-//                 itr.forEachRemaining(row->{
-//                     Iterator<Cell> cellIterator = row.cellIterator();   //iterating over each column
-//                     String statement = "";
-//                     System.out.println("--Start inserting---"+ (row.getRowNum()));
-//                while (cellIterator.hasNext()) {
-//                    try {
-//                        Cell cell = cellIterator.next();
-//                       String cellType = cell.getCellType().toString();
-//                        switch(cellType){
-//                            case "NUMERIC":
-//                                statement += cell.getNumericCellValue()+",";
-//                                //System.out.println(cell.getNumericCellValue());
-//                                break;
-//                            case "STRING":
-//                                statement += "'"+cell.getStringCellValue()+"'"+",";
-//                               // System.out.println(cell.getStringCellValue());
-//                                break;
-//                            case "BLANK":
-//                                statement += "'"+" "+"',";
-//                                // System.out.println(cell.getStringCellValue());
-//                                break;
-//                            default:
-//                                System.out.println("No type found");
-//                        }
-//                    }
-//                    catch (Exception exception){
-//                        System.out.println(exception.getMessage());
-//                    }
-//                }
-//                     statement = "insert into lis_data"+" "+"values "+ "(" + statement.trim().substring(0, statement.length() - 1) +")";
-//                System.out.println(statement);
-//                     try {
-//                         connection.prepareStatement(statement).execute();
-//                     } catch (SQLException e) {
-//                       System.out.println(e.getMessage());
-//                     }
-//                    // System.out.println(statement);
-//                 });
-           // Thread.sleep(500);
-
         }
-
-
-
-
         catch(Exception e) {
             e.printStackTrace();
         }
-//        try {
-//            while (itr.hasNext())
-//            {
-//                Iterator<Cell> cellIterator = row.cellIterator();   //iterating over each column
-//                while (cellIterator.hasNext()) {
-//                    try {
-//                        Cell cell = cellIterator.next();
-//                            rowIndex = cell.getRowIndex();
-//                            System.out.println(rowIndex);
-//                            cellIterator = row.cellIterator();;
-//                    }
-//                    catch (Exception exception){
-//                        System.out.println(exception.getMessage());
-//                    }
-//                }
-//                row = itr.next();
-//            }
-//        }
-//
-//        catch(Exception e) {
-//            e.printStackTrace();
-//        }
+
+        try {
+            outputBufferWriter.flush();
+            outputBufferWriter.close();
+        } catch (IOException e) {
+           System.out.println(e.getMessage());
+        }
     }
 
     private static void creatTable(Connection connection) {
@@ -230,11 +145,11 @@ public class Main {
     private static void processFile (String filePath){
 
         try {
-             file = new File(filePath);   //creating a new file instance
-             fis = new FileInputStream(file);   //obtaining bytes from the file
+             file = new File(filePath);
+             fis = new FileInputStream(file);
              wb = new XSSFWorkbook(fis);
              sheet = wb.getSheetAt(0);
-            itr = sheet.iterator();    //iterating over excel file
+             itr = sheet.iterator();
 
             while (itr.hasNext())
             {
@@ -266,5 +181,15 @@ public class Main {
     }
     private static String tableFormatString(String column){
        return  "`"+column+"`";
+    }
+
+    private static void writeToFile(String missingLine){
+
+        try {
+            outputBufferWriter.write(missingLine + System.lineSeparator());
+        }
+        catch(Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 }
