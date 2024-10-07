@@ -1,4 +1,4 @@
-package org.example;
+package kidneyproject.merge;
 
 import java.io.*;
 import java.sql.*;
