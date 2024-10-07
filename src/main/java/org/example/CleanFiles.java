@@ -15,7 +15,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  *
  * @author kadir
  */
-public class MainOne {
+public class CleanFiles {
    private static String filePath = "C:\\Users\\marzi\\Desktop\\java\\Projectfiles\\Lisfiles_xlsx\\7018876_DM2009_Creatinine(Lab)_2010_Q2_LIS.xlsx";
     static ArrayList<String> columnNames = new ArrayList<String>();
     static ArrayList<String> columnType = new ArrayList<String>();

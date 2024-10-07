@@ -1,4 +1,3 @@
-
 package org.example;
 
 import java.io.*;
@@ -14,7 +13,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 /**
  * @author kadir
  */
-public class MainTwo {
+public class MergeFiles {
     private static String filePath;
     static ArrayList<String> columnNames = new ArrayList<String>();
     static ArrayList<String> columnType = new ArrayList<String>();
@@ -27,8 +26,8 @@ public class MainTwo {
     private static String tableStatement = "";
     private static FileWriter fileWriter;
     private static BufferedWriter outputBufferWriter;
-//private static File directoryPath = new File("C:\\work\\java\\Projectfiles\\Lisfiles_xlsx");
-   private static File directoryPath = new File("C:\\Users\\marzi\\Desktop\\java\\Projectfiles\\Lisfiles_xlsx");
+    //private static File directoryPath = new File("C:\\work\\java\\Projectfiles\\Lisfiles_xlsx");
+    private static File directoryPath = new File("C:\\Users\\Desktop\\java\\Projectfiles\\Lisfiles_xlsx");
     //List of all files and directories
     private static File filesList[];
 
@@ -39,19 +38,19 @@ public class MainTwo {
         filesList = directoryPath.listFiles();
         int fileCount = 0;
         for (File file : filesList) {
-            System.out.println(file.getName() + " : Started" );
+            System.out.println(file.getName() + " : Started");
             filePath = file.getAbsolutePath();
             processFile(filePath);
             System.out.println(columnNames);
             System.out.println(columnType);
             System.out.println(rowIndex);
             try {
-               // Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/patient_data", "root", "0112358");
+                // Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/patient_data", "root", "0112358");
                 Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/creatinine", "root", "0112358"); //TODO
-                connection.prepareStatement("SET sql_mode"+"= ''").execute();
+                connection.prepareStatement("SET sql_mode" + "= ''").execute();
                 creatTable(connection);
                 insertData(connection);
-                System.out.println((fileCount+1)+ " ------ "+file.getName() + " ------ Completed");
+                System.out.println((fileCount + 1) + " ------ " + file.getName() + " ------ Completed");
                 Thread.sleep(500);
             } catch (SQLException | InterruptedException e) {
                 throw new RuntimeException(e);
@@ -71,7 +70,7 @@ public class MainTwo {
                 Row row = sheet.getRow(rowIndex += 1);
                 Iterator<Cell> cellIterator = row.cellIterator();   //iterating over each column
                 String statement = "";
-             //   System.out.println("--Start inserting---" + (row.getRowNum())); //todo
+                //   System.out.println("--Start inserting---" + (row.getRowNum())); //todo
                 while (cellIterator.hasNext()) {
                     try {
                         Cell cell = cellIterator.next();
@@ -87,21 +86,21 @@ public class MainTwo {
                                 statement += "'" + " " + "',";
                                 break;
                             default:
-                               // System.out.println("No type found");
+                                // System.out.println("No type found");
                         }
                     } catch (Exception exception) {
                         System.out.println(exception.getMessage() + "\n" + "---ROW --- " + rowIndex);
                     }
                 }
                 statement = "insert into lis_data" + " " + "values " + "(" + statement.trim().substring(0, statement.length() - 1) + ")";
-              //   System.out.println(statement); //todo
+                //   System.out.println(statement); //todo
                 if (statement.equals("insert into lis_data values (' ')")) {
                     break;
                 }
                 try {
                     connection.prepareStatement(statement).execute();
                 } catch (SQLException e) {
-                    System.out.println(e.getMessage()+ " "+ (rowIndex+1));
+                    System.out.println(e.getMessage() + " " + (rowIndex + 1));
                     writeToFile("Missing row: " + (1 + rowIndex)); //todo
                 }
             }
@@ -141,7 +140,7 @@ public class MainTwo {
                     tableStatement += columnNames.get(index);
                     columnType.set(index, "double,");
                     tableStatement += " " + columnType.get(index) + " ";
-                    System.out.println("Name :"+ columnNames.get(index) + " Type :" +type);
+                    System.out.println("Name :" + columnNames.get(index) + " Type :" + type);
                     break;
                 case "STRING", "BLANK":
                     index = columnType.indexOf(type);
@@ -173,7 +172,7 @@ public class MainTwo {
                         Cell cell = cellIterator.next();
                         if (cell.getStringCellValue().toLowerCase().equals("lis result")) {
                             rowIndex = cell.getRowIndex();// ToDO
-                         //  rowIndex = 55710;
+                            //  rowIndex = 55710;
                             cellIterator = row.cellIterator();
                             cellIterator.forEachRemaining(column -> columnNames.add(tableFormatString(column.getStringCellValue())));
                             row = itr.next();
@@ -203,6 +202,4 @@ public class MainTwo {
             System.out.println(e.getMessage());
         }
     }
-
-
 }
